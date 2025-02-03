@@ -1,0 +1,158 @@
+package es.ies.puerto.model.fichero;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import es.ies.puerto.model.Empleado;
+import es.ies.puerto.model.Operations;
+
+/**
+ * Clase FileOperations que implementa los metodos de la clase Operations 
+ * y realiza el CRUD en el fichero empleados.txt
+ * @author danielrguezh
+ * @version 1.0.0
+ */
+public class FileOperations implements Operations{
+    File fichero;
+    String path="C:\\Users\\anabe\\Escritorio\\interfaces-ficheros\\src\\main\\resources\\empleados.txt";
+
+    public FileOperations(){
+        fichero=new File(path);
+        if (!fichero.exists() || !fichero.isFile()) {
+            throw new IllegalArgumentException("El recurso no es de tipo fichero. "+path);
+        }
+    }
+
+    private Set<Empleado> readFile(File file) {
+        Set<Empleado> empleados=new HashSet<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] arrayLine = line.split(",");
+                Empleado empleado=new Empleado(arrayLine[0], arrayLine[1], arrayLine[2],Double.valueOf(arrayLine[3]), arrayLine[4]);
+                empleados.add(empleado);
+            }
+        } catch (IOException e) {
+            return new HashSet<>();
+        }
+        return empleados;
+    }
+
+    @Override
+    public boolean create(Empleado empleado) {
+        if (empleado==null ||empleado.getIdentificador()==null) {
+            return false;
+        }
+        Set<Empleado> empleados = readFile(fichero);
+        if (empleados.contains(empleado)) {
+            return false;   
+        }
+        return create(empleado.toString(), fichero);
+    }
+
+    public boolean create(String data, File file) {
+        try (BufferedWriter writer=new BufferedWriter(new FileWriter(file,true))){
+            writer.write(data);
+            writer.newLine();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Empleado read(String identificador) {
+        if (identificador==null || identificador.isBlank()) {
+            return null;
+        }
+        Empleado empleado=new Empleado(identificador);
+        return read(empleado);
+    }
+
+    @Override
+    public Empleado read(Empleado empleado) {
+        if (empleado==null) {
+            return null;
+        }
+        Set<Empleado> empleados= readFile(fichero);
+        for (Empleado personaBuscar : empleados) {
+            if (personaBuscar.equals(empleado)) {
+                return personaBuscar;
+            }
+        }
+        return empleado;
+    }
+
+    @Override
+    public boolean update(Empleado empleado) {
+        if (empleado ==null || empleado.getIdentificador()==null) {
+            return false;
+        }
+        Set<Empleado> empleados = readFile(fichero);
+        if (!empleados.contains(empleado)) {
+            return false;
+        }
+        for (Empleado empleadoBuscado : empleados) {
+            if (empleadoBuscado.equals(empleado)) {
+                empleados.remove(empleadoBuscado);
+                empleados.add(empleado);
+                return updateFile(empleados, fichero);
+            }
+        }
+        return false;
+    }
+
+    private boolean updateFile(Set<Empleado> empleados, File file){
+        String path = file.getAbsolutePath();
+        file.delete();
+        try {
+            file.delete();
+            file.createNewFile();
+        } catch (IOException e) {
+            return false;
+        }
+        for (Empleado empleado : empleados) {
+            create(empleado);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean delete(String identificador) {
+        if (identificador==null || identificador.isBlank()) {
+            return false;
+        }
+        Empleado empleado=new Empleado(identificador);
+        Set<Empleado> empleados = readFile(fichero);
+        if (!empleados.contains(empleado)) {
+            return false;
+        }
+        for (Empleado empleadoBuscado : empleados) {
+            if (empleadoBuscado.equals(empleado)) {
+                empleados.remove(empleadoBuscado);
+                return updateFile(empleados, fichero);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Set<Empleado> empleadosPorPuesto(String puesto) {
+        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero).stream().filter(e -> e.getPuesto().equals(puesto));
+        return empleados;
+    }
+
+    @Override
+    public Set<Empleado> empleadosPorEdad(String fechaInicio, String fechaFin) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'empleadosPorEdad'");
+    }
+
+
+}
