@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,23 +14,37 @@ import es.ies.puerto.model.Empleado;
 import es.ies.puerto.model.Operations;
 
 /**
- * Clase FileOperations que implementa los metodos de la clase Operations 
+ * Clase FileOperations que implementa los metodos de la clase Operations
  * y realiza el CRUD en el fichero empleados.txt
  * @author danielrguezh
  * @version 1.0.0
  */
 public class FileOperations implements Operations{
     File fichero;
+    String ficheroNombre="empleados.txt";
     String path="C:\\Users\\anabe\\Escritorio\\interfaces-ficheros\\src\\main\\resources\\empleados.txt";
 
+    /**
+     * Constructorpor defecto
+     */
     public FileOperations(){
-        fichero=new File(path);
-        if (!fichero.exists() || !fichero.isFile()) {
-            throw new IllegalArgumentException("El recurso no es de tipo fichero. "+path);
+        try {
+            URL resource=getClass().getClassLoader().getResource(ficheroNombre);
+            if (ficheroNombre==null) {
+                
+            }
+            fichero=new File(resource.toURI());
+        } catch (Exception e) {
+            // TODO: handle exception
         }
     }
 
-    private Set<Empleado> readFile(File file) {
+    /**
+     * Metodo que lee el fichero y retorna la documentacion
+     * @param file
+     * @return documentacion listada de empleados
+     */
+    public Set<Empleado> readFile(File file) {
         Set<Empleado> empleados=new HashSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -51,11 +66,17 @@ public class FileOperations implements Operations{
         }
         Set<Empleado> empleados = readFile(fichero);
         if (empleados.contains(empleado)) {
-            return false;   
+            return false;
         }
         return create(empleado.toString(), fichero);
     }
 
+    /**
+     * Metodo que agrega escribe la inforrmacion de la clase en el fichero
+     * @param data
+     * @param file
+     * @return true/false
+     */
     public boolean create(String data, File file) {
         try (BufferedWriter writer=new BufferedWriter(new FileWriter(file,true))){
             writer.write(data);
@@ -108,6 +129,12 @@ public class FileOperations implements Operations{
         return false;
     }
 
+    /**
+     * Metodo que sobresescribe el fichero
+     * @param empleados
+     * @param file
+     * @return
+     */
     private boolean updateFile(Set<Empleado> empleados, File file){
         String path = file.getAbsolutePath();
         file.delete();
