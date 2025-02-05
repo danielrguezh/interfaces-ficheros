@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -177,9 +180,19 @@ public class FileOperations implements Operations{
 
     @Override
     public Set<Empleado> empleadosPorEdad(String fechaInicio, String fechaFin) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'empleadosPorEdad'");
+        if (fechaInicio==null || fechaInicio.trim().isEmpty() ||fechaFin==null || fechaFin.trim().isEmpty()) {
+            return null;
+        }
+        DateTimeFormatter formato=DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate inicio=LocalDate.parse(fechaInicio.trim(),formato);
+        LocalDate fin=LocalDate.parse(fechaFin.trim(),formato);
+        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero);
+        for (Empleado empleado : empleados) {
+            LocalDate fecha=LocalDate.parse(empleado.getFechaNacimiento().trim(),formato);
+            if (fecha.isBefore(inicio) || fecha.isAfter(fin)) {
+                empleados.remove(empleado);
+            }
+        }
+        return empleados;
     }
-
-
 }
