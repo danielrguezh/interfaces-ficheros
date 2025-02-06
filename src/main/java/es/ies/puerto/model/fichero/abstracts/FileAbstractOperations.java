@@ -40,7 +40,7 @@ public abstract class FileAbstractOperations {
      * @param file
      * @return documentacion listada de empleados
      */
-    public Set<Empleado> readFile(File file) {
+    public Set<Empleado> fileToSet(File file) {
         Set<Empleado> empleados=new HashSet<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;

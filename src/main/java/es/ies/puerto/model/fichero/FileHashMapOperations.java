@@ -1,9 +1,13 @@
 package es.ies.puerto.model.fichero;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,7 +38,7 @@ public class FileHashMapOperations extends FileOperations {
     protected Map<String, Empleado> fileToMap (File file){
         Map<String, Empleado> empleadosMap=new TreeMap<>();
 
-        Set<Empleado> empleados=super.readFile(file);
+        Set<Empleado> empleados=super.fileToSet(file);
         for (Empleado empleado : empleados) {
             empleadosMap.put(empleado.getIdentificador(), empleado);
         }
@@ -46,8 +50,8 @@ public class FileHashMapOperations extends FileOperations {
         if (empleado==null ||empleado.getIdentificador()==null) {
             return false;
         }
-        Set<Empleado> empleados = readFile(fichero);
-        if (empleados.contains(empleado)) {
+        Map<String,Empleado> empleados = fileToMap(fichero);
+        if (empleados.containsKey(empleado.getIdentificador())) {
             return false;
         }
         return create(empleado.toString(), fichero);
@@ -83,13 +87,12 @@ public class FileHashMapOperations extends FileOperations {
         if (empleado==null) {
             return null;
         }
-        Set<Empleado> empleados= readFile(fichero);
-        for (Empleado personaBuscar : empleados) {
-            if (personaBuscar.equals(empleado)) {
-                return personaBuscar;
-            }
+        Map<String,Empleado> empleados= fileToMap(fichero);
+        Empleado empleadoBuscar=empleados.get(empleado.getIdentificador());
+        if (empleadoBuscar==null) {
+            return null;
         }
-        return empleado;
+        return empleadoBuscar;
     }
 
     @Override
@@ -97,18 +100,12 @@ public class FileHashMapOperations extends FileOperations {
         if (empleado ==null || empleado.getIdentificador()==null) {
             return false;
         }
-        Set<Empleado> empleados = readFile(fichero);
-        if (!empleados.contains(empleado)) {
+        Map<String,Empleado> empleados = fileToMap(fichero);
+        if (!empleados.containsKey(empleado.getIdentificador())) {
             return false;
         }
-        for (Empleado empleadoBuscado : empleados) {
-            if (empleadoBuscado.equals(empleado)) {
-                empleados.remove(empleadoBuscado);
-                empleados.add(empleado);
-                return updateFile(empleados, fichero);
-            }
-        }
-        return false;
+        empleados.put(empleado.getIdentificador(), empleado);
+        return updateFile(empleados, fichero);
     }
 
     /**
@@ -117,16 +114,14 @@ public class FileHashMapOperations extends FileOperations {
      * @param file
      * @return
      */
-    private boolean updateFile(Set<Empleado> empleados, File file){
-        String path = file.getAbsolutePath();
-        file.delete();
+    private boolean updateFile(Map<String,Empleado> empleados, File file){
         try {
             file.delete();
             file.createNewFile();
         } catch (IOException e) {
             return false;
         }
-        for (Empleado empleado : empleados) {
+        for (Empleado empleado : empleados.values()) {
             create(empleado);
         }
         return true;
@@ -138,22 +133,17 @@ public class FileHashMapOperations extends FileOperations {
             return false;
         }
         Empleado empleado=new Empleado(identificador);
-        Set<Empleado> empleados = readFile(fichero);
-        if (!empleados.contains(empleado)) {
+        Map<String, Empleado> empleados = fileToMap(fichero);
+        if (!empleados.containsKey(empleado.getIdentificador())) {
             return false;
         }
-        for (Empleado empleadoBuscado : empleados) {
-            if (empleadoBuscado.equals(empleado)) {
-                empleados.remove(empleadoBuscado);
-                return updateFile(empleados, fichero);
-            }
-        }
-        return false;
+        empleados.remove(identificador);
+         return updateFile(empleados, fichero);
     }
 
     @Override
     public Set<Empleado> empleadosPorPuesto(String puesto) {
-        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero).stream().filter(e -> e.getPuesto().equals(puesto));
+        Set<Empleado> empleados = (Set<Empleado>) fileToSet(fichero).stream().filter(e -> e.getPuesto().equals(puesto));
         return empleados;
     }
 
@@ -165,7 +155,7 @@ public class FileHashMapOperations extends FileOperations {
         DateTimeFormatter formato=DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate inicio=LocalDate.parse(fechaInicio.trim(),formato);
         LocalDate fin=LocalDate.parse(fechaFin.trim(),formato);
-        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero);
+        Set<Empleado> empleados = (Set<Empleado>) fileToSet(fichero);
         for (Empleado empleado : empleados) {
             LocalDate fecha=LocalDate.parse(empleado.getFechaNacimiento().trim(),formato);
             if (fecha.isBefore(inicio) || fecha.isAfter(fin)) {

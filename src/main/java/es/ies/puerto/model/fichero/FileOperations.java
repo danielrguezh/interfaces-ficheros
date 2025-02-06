@@ -37,7 +37,7 @@ public class FileOperations extends FileAbstractOperations implements Operations
         if (empleado==null ||empleado.getIdentificador()==null) {
             return false;
         }
-        Set<Empleado> empleados = readFile(fichero);
+        Set<Empleado> empleados = fileToSet(fichero);
         if (empleados.contains(empleado)) {
             return false;
         }
@@ -74,10 +74,10 @@ public class FileOperations extends FileAbstractOperations implements Operations
         if (empleado==null) {
             return null;
         }
-        Set<Empleado> empleados= readFile(fichero);
-        for (Empleado personaBuscar : empleados) {
-            if (personaBuscar.equals(empleado)) {
-                return personaBuscar;
+        Set<Empleado> empleados= fileToSet(fichero);
+        for (Empleado empleadoBuscar : empleados) {
+            if (empleadoBuscar.equals(empleado)) {
+                return empleadoBuscar;
             }
         }
         return empleado;
@@ -88,7 +88,7 @@ public class FileOperations extends FileAbstractOperations implements Operations
         if (empleado ==null || empleado.getIdentificador()==null) {
             return false;
         }
-        Set<Empleado> empleados = readFile(fichero);
+        Set<Empleado> empleados = fileToSet(fichero);
         if (!empleados.contains(empleado)) {
             return false;
         }
@@ -109,8 +109,6 @@ public class FileOperations extends FileAbstractOperations implements Operations
      * @return
      */
     private boolean updateFile(Set<Empleado> empleados, File file){
-        String path = file.getAbsolutePath();
-        file.delete();
         try {
             file.delete();
             file.createNewFile();
@@ -129,7 +127,7 @@ public class FileOperations extends FileAbstractOperations implements Operations
             return false;
         }
         Empleado empleado=new Empleado(identificador);
-        Set<Empleado> empleados = readFile(fichero);
+        Set<Empleado> empleados = fileToSet(fichero);
         if (!empleados.contains(empleado)) {
             return false;
         }
@@ -144,7 +142,10 @@ public class FileOperations extends FileAbstractOperations implements Operations
 
     @Override
     public Set<Empleado> empleadosPorPuesto(String puesto) {
-        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero).stream().filter(e -> e.getPuesto().equals(puesto));
+        if (puesto==null || puesto.trim().isEmpty()) {
+            return null;
+        }
+        Set<Empleado> empleados = (Set<Empleado>) fileToSet(fichero).stream().filter(e -> e.getPuesto().equals(puesto));
         return empleados;
     }
 
@@ -156,7 +157,7 @@ public class FileOperations extends FileAbstractOperations implements Operations
         DateTimeFormatter formato=DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate inicio=LocalDate.parse(fechaInicio.trim(),formato);
         LocalDate fin=LocalDate.parse(fechaFin.trim(),formato);
-        Set<Empleado> empleados = (Set<Empleado>) readFile(fichero);
+        Set<Empleado> empleados = (Set<Empleado>) fileToSet(fichero);
         for (Empleado empleado : empleados) {
             LocalDate fecha=LocalDate.parse(empleado.getFechaNacimiento().trim(),formato);
             if (fecha.isBefore(inicio) || fecha.isAfter(fin)) {
