@@ -1,1 +1,3 @@
-
+1,Juan Perez,Desarrollador,3000.5,15/10/1995
+2,Ana Gomez,Diseniadora,2800.75,10/01/1990
+3,Luis Lopez,Gerente,4000.0,30/07/2000

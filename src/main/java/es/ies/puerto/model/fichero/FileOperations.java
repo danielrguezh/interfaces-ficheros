@@ -15,6 +15,7 @@ import java.util.Set;
 
 import es.ies.puerto.model.Empleado;
 import es.ies.puerto.model.Operations;
+import es.ies.puerto.model.fichero.abstracts.FileAbstractOperations;
 
 /**
  * Clase FileOperations que implementa los metodos de la clase Operations
@@ -22,44 +23,13 @@ import es.ies.puerto.model.Operations;
  * @author danielrguezh
  * @version 1.0.0
  */
-public class FileOperations implements Operations{
+public class FileOperations extends FileAbstractOperations implements Operations{
     File fichero;
-    String ficheroNombre="empleados.txt";
-    String path="C:\\Users\\anabe\\Escritorio\\interfaces-ficheros\\src\\main\\resources\\empleados.txt";
-
     /**
-     * Constructorpor defecto
+     * Constructor por defecto
      */
     public FileOperations(){
-        try {
-            URL resource=getClass().getClassLoader().getResource(ficheroNombre);
-            if (ficheroNombre==null) {
-                
-            }
-            fichero=new File(resource.toURI());
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-    }
-
-    /**
-     * Metodo que lee el fichero y retorna la documentacion
-     * @param file
-     * @return documentacion listada de empleados
-     */
-    public Set<Empleado> readFile(File file) {
-        Set<Empleado> empleados=new HashSet<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] arrayLine = line.split(",");
-                Empleado empleado=new Empleado(arrayLine[0], arrayLine[1], arrayLine[2],Double.valueOf(arrayLine[3]), arrayLine[4]);
-                empleados.add(empleado);
-            }
-        } catch (IOException e) {
-            return new HashSet<>();
-        }
-        return empleados;
+        super();
     }
 
     @Override

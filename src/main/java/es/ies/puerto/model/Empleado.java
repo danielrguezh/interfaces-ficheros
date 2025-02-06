@@ -1,5 +1,9 @@
 package es.ies.puerto.model;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.Set;
 /**
  * Clase Empleado
  * @author danielrguezh
@@ -80,6 +84,16 @@ public class Empleado {
 
     public void setFechaNacimiento(String fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
+    }
+
+    /**
+     * Metodo que devuelve la edad del empleado
+     * @return edad
+     */
+    public int getEdad(){
+        DateTimeFormatter formato=DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate localDateNacimiento=LocalDate.parse(fechaNacimiento.trim(),formato);
+        return (int) ChronoUnit.YEARS.between(localDateNacimiento, LocalDate.now());
     }
 
     @Override
