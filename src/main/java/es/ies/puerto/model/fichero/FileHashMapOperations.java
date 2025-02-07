@@ -16,12 +16,13 @@ import java.util.TreeMap;
 
 import es.ies.puerto.model.Empleado;
 import es.ies.puerto.model.Operations;
+import es.ies.puerto.model.fichero.abstracts.FileAbstractOperations;
 /**
  * Clase de ejmplo de operaciones con Map
  * @author danielrguezh
  * @version 1.0.0
  */
-public class FileHashMapOperations extends FileOperations {
+public class FileHashMapOperations extends FileAbstractOperations implements Operations {
     File fichero;
     /**
      * Constructor por defecto
@@ -112,7 +113,7 @@ public class FileHashMapOperations extends FileOperations {
      * Metodo que sobresescribe el fichero
      * @param empleados
      * @param file
-     * @return
+     * @return true/false
      */
     private boolean updateFile(Map<String,Empleado> empleados, File file){
         try {

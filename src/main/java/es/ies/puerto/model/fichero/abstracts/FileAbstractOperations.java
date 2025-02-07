@@ -16,16 +16,22 @@ public abstract class FileAbstractOperations {
 
     /**
      * Constructorpor defecto
+     */
+
+    /**
+     * Alternativa
      * public FileOperations(){
         try {
             URL resource=getClass().getClassLoader().getResource(ficheroNombre);
             if (ficheroNombre==null) {
-                
+                throw new IllegalArgumentException("El archivo no se encontro en el classpath: empleados.txt");
             }
             fichero=new File(resource.toURI());
         } catch (Exception e) {
             // TODO: handle exception
         }
+
+        
     }
      */
     public FileAbstractOperations() {
